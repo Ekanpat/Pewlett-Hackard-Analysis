@@ -12,7 +12,7 @@ FROM titles as t
 
 --- Create a new table using the INTO clause
 SELECT emp_no,title, from_date, to_date
-INTO retirement_t as rt
+INTO retirement_t
 FROM titles as t
 
 ------Join both tables on the primary key &
@@ -23,9 +23,9 @@ SELECT e.emp_no,
 	rt.title,
 	rt.from_date,
 	rt.to_date
-INTO retirement_titles as rtt
+INTO retirement_titles
 FROM employees as e
-INNER JOIN rt
+INNER JOIN retirement_t as rt
 ON (e.emp_no = rt.emp_no)
 WHERE (e.birth_date BETWEEN '1952-01-01' AND '1955-12-31')
 ORDER BY e.emp_no
@@ -36,17 +36,17 @@ SELECT DISTINCT ON (emp_no) emp_no,
 first_name, 
 last_name, 
 title
-INTO unique_titles as ut
-FROM rtt
+INTO unique_titles
+FROM retirement_titles as rtt
 ORDER BY rtt.emp_no ASC, rtt.to_date DESC;
 
 --Exporting the Unique Titles table as unique_titles.csv and saving
 -- it to the Data folder in the Pewlett-Hackard-Analysis folder.
 
 -- Number of employees about to retire by their most recent job title
-SELECT COUNT (unique_titles.title), unique_titles.title
-INTO rtt
-FROM ut
+SELECT COUNT (ut.title) , ut.title
+INTO retiring_titles
+FROM unique_titles as ut
 GROUP BY ut.title
 ORDER BY ut.count DESC;
 
@@ -76,14 +76,14 @@ FROM titles as t
 
 SELECT DISTINCT e.emp_no,e.first_name, e.last_name, e.birth_date,
 t.from_date, t.to_date, t.title
-
-INTO mentorship_eligibility as me
-FROM e
-INNER JOIN t
+INTO mentorship_eligibility
+FROM employees as e
+INNER JOIN titles as t
 ON (e.emp_no = t.emp_no)
 WHERE t.to_date = '9999-01-01' and 
 (e.birth_date BETWEEN '1965-01-01' AND '1965-12-31') 
 ORDER BY e.emp_no
+
 
 
 
